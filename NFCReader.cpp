@@ -6,6 +6,7 @@ NFCReader::NFCReader() : pn532i2c(Wire), nfc(pn532i2c), connected(false) {}
 void NFCReader::begin() {
   Serial.begin(115200);
   Serial.println("*** Testing Module PN532 NFC RFID ***");
+  connectWifi();
 }
 
 bool NFCReader::readCard(uint8_t uid[], uint8_t &uidLength) {
@@ -22,7 +23,6 @@ void NFCReader::connect() {
     connected = false;
     return;
   }
-  connectWifi();
   connected = true;
 }
 
