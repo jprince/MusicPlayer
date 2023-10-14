@@ -1,4 +1,5 @@
 #include "NFCReader.h"
+#include "settings.h"
 
 NFCReader::NFCReader() : pn532i2c(Wire), nfc(pn532i2c), connected(false) {}
 
@@ -21,7 +22,7 @@ void NFCReader::connect() {
     connected = false;
     return;
   }
-  // ... (rest of the connect function)
+  connectWifi();
   connected = true;
 }
 
@@ -50,4 +51,22 @@ void NFCReader::loop() {
     // PN532 probably timed out waiting for a card
     // Serial.println("Timed out waiting for a card");
   }
+}
+
+void NFCReader::connectWifi()
+{
+  WiFi.begin(ssid, pass);
+  Serial.println("");
+
+  // Wait for connection
+  while (WiFi.status() != WL_CONNECTED)
+  {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
 }

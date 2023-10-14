@@ -2,6 +2,7 @@
 #define NFCReader_h
 
 #include <Wire.h>
+#include <WiFi.h>
 #include <PN532_I2C.h>
 #include <PN532.h>
 #include <NfcAdapter.h>
@@ -13,6 +14,7 @@ public:
   bool readCard(uint8_t uid[], uint8_t &uidLength);
   void connect();
   void loop();
+  void connectWifi();
 
 private:
   PN532_I2C pn532i2c;
