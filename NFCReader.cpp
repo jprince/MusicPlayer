@@ -1,12 +1,18 @@
 #include "NFCReader.h"
+#include "SpotifyClient.h"
 #include "settings.h"
 
 NFCReader::NFCReader() : pn532i2c(Wire), nfc(pn532i2c), connected(false) {}
+
+SpotifyClient spotify = SpotifyClient(clientId, clientSecret, deviceName, refreshToken);
 
 void NFCReader::begin() {
   Serial.begin(115200);
   Serial.println("*** Testing Module PN532 NFC RFID ***");
   connectWifi();
+
+  spotify.FetchToken();
+  spotify.GetDevices();
 }
 
 bool NFCReader::readCard(uint8_t uid[], uint8_t &uidLength) {
@@ -45,11 +51,41 @@ void NFCReader::loop() {
     }
     Serial.println("");
     Serial.println("");
+    playSpotifyUri("spotify:playlist:15mly4Os7BdTWCnBEGylJW");
 
     connect();
   } else {
     // PN532 probably timed out waiting for a card
     // Serial.println("Timed out waiting for a card");
+  }
+}
+
+void NFCReader::playSpotifyUri(String context_uri)
+{
+  int code = spotify.Play(context_uri);
+  switch (code)
+  {
+    case 404:
+    {
+      // device id changed, get new one
+      spotify.GetDevices();
+      spotify.Play(context_uri);
+      spotify.Shuffle();
+      break;
+    }
+    case 401:
+    {
+      // auth token expired, get new one
+      spotify.FetchToken();
+      spotify.Play(context_uri);
+      spotify.Shuffle();
+      break;
+    }
+    default:
+    {
+      spotify.Shuffle();
+      break;
+    }
   }
 }
 
