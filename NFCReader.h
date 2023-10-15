@@ -11,8 +11,7 @@ class NFCReader {
 public:
   NFCReader();
   void begin();
-  bool readCard(uint8_t uid[], uint8_t &uidLength);
-  void connect();
+  void connectToReader();
   void loop();
   void playSpotifyUri(String context_uri);
   void connectWifi();

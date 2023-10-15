@@ -8,40 +8,42 @@ SpotifyClient spotify = SpotifyClient(clientId, clientSecret, deviceName, refres
 
 void NFCReader::begin() {
   Serial.begin(115200);
-  Serial.println("*** Testing Module PN532 NFC RFID ***");
+  nfc.begin();
+  while (!connected) {
+    delay(1000);
+    connectToReader();
+  }
+  // Set the max number of retry attempts to read from a card
+  // This prevents us from waiting forever for a card, which is
+  // the default behaviour of the PN532.
+  nfc.setPassiveActivationRetries(0x01); // 1. 0xff instead is 255
   connectWifi();
-
   spotify.FetchToken();
   spotify.GetDevices();
 }
 
-bool NFCReader::readCard(uint8_t uid[], uint8_t &uidLength) {
-  boolean success;
-  success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, &uid[0], &uidLength);
-  return success;
-}
-
-void NFCReader::connect() {
-  nfc.begin();
+void NFCReader::connectToReader() {
   uint32_t versiondata = nfc.getFirmwareVersion();
   if (!versiondata) {
     Serial.println("PN532 card not found!");
     connected = false;
     return;
   }
+  Serial.println("PN532 card found!");
   connected = true;
 }
 
 void NFCReader::loop() {
-  uint8_t uid[7];
-  uint8_t uidLength = 0;
-
-  while (!connected) {
-    delay(5000);
-    connect();
-  }
-
-  if (readCard(uid, uidLength)) {
+  Serial.println("Looping");
+  delay(1000);
+  uint8_t uid[7]; // Buffer to store the returned UID
+  uint8_t uidLength = 0; // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
+  boolean success;
+  // Wait for an ISO14443A type cards (Mifare, etc.).  When one is found
+  // 'uid' will be populated with the UID, and uidLength will indicate
+  // if the uid is 4 bytes (Mifare Classic) or 7 bytes (Mifare Ultralight)
+  success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, &uid[0], &uidLength);
+  if (success) {
     Serial.println("Card Detected");
     Serial.print("Size of UID: "); Serial.print(uidLength, DEC);
     Serial.println(" bytes");
@@ -52,11 +54,9 @@ void NFCReader::loop() {
     Serial.println("");
     Serial.println("");
     playSpotifyUri("spotify:playlist:15mly4Os7BdTWCnBEGylJW");
-
-    connect();
-  } else {
-    // PN532 probably timed out waiting for a card
-    // Serial.println("Timed out waiting for a card");
+    delay(2000);
+    // verify that connection is still live
+    // connectToReader();
   }
 }
 
