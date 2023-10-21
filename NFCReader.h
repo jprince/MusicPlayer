@@ -1,9 +1,9 @@
 #ifndef NFCReader_h
 #define NFCReader_h
 
+#include <Wire.h>
 #include <WiFi.h>
-#include <SoftwareSerial.h>
-#include <PN532_SWHSU.h>
+#include <PN532_I2C.h>
 #include <PN532.h>
 #include <NfcAdapter.h>
 
@@ -17,8 +17,7 @@ public:
   void connectWifi();
 
 private:
-  SoftwareSerial SWSerial; // RX, TX
-  PN532_SWHSU pn532swhsu;
+  PN532_I2C pn532i2c;
   PN532 nfc;
   bool connected;
 };

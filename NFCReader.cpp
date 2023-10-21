@@ -2,7 +2,7 @@
 #include "SpotifyClient.h"
 #include "settings.h"
 
-NFCReader::NFCReader() : SWSerial( 3, 2 ), pn532swhsu(SWSerial), nfc(pn532swhsu), connected(false) {}
+NFCReader::NFCReader() : pn532i2c(Wire), nfc(pn532i2c), connected(false) {}
 
 SpotifyClient spotify = SpotifyClient(clientId, clientSecret, deviceName, refreshToken);
 
@@ -42,7 +42,7 @@ void NFCReader::loop() {
   // Wait for an ISO14443A type cards (Mifare, etc.).  When one is found
   // 'uid' will be populated with the UID, and uidLength will indicate
   // if the uid is 4 bytes (Mifare Classic) or 7 bytes (Mifare Ultralight)
-  success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, &uid[0], &uidLength, 50);
+  success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, &uid[0], &uidLength);
   if (success) {
     Serial.println("Card Detected");
     Serial.print("Size of UID: "); Serial.print(uidLength, DEC);
@@ -53,8 +53,6 @@ void NFCReader::loop() {
     }
     Serial.println("");
     Serial.println("");
-
-    // TODO: make this URI dynamic (i.e. read from NFC tag)
     playSpotifyUri("spotify:playlist:15mly4Os7BdTWCnBEGylJW");
     delay(2000);
     // verify that connection is still live
