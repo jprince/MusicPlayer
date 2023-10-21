@@ -1,4 +1,3 @@
-#include <Wire.h>
 #include "NFCReader.h"
 
 NFCReader nfcReader;
