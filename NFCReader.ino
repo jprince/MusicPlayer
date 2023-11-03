@@ -3,6 +3,12 @@
 
 NFCReader nfcReader;
 
+// Compile project
+// Upload to arduino
+// Unplug usb
+// Plug in usb
+// Open serial monitor
+
 void setup() {
   nfcReader.begin();
 }

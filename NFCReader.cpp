@@ -16,10 +16,14 @@ void NFCReader::begin() {
   // Set the max number of retry attempts to read from a card
   // This prevents us from waiting forever for a card, which is
   // the default behaviour of the PN532.
-  nfc.setPassiveActivationRetries(0x01); // 1. 0xff instead is 255
+  nfc.setPassiveActivationRetries(0xFF);
   connectWifi();
   spotify.FetchToken();
   spotify.GetDevices();
+
+  nfc.SAMConfig();
+
+  Serial.println("Ready to scan");
 }
 
 void NFCReader::connectToReader() {
@@ -34,8 +38,6 @@ void NFCReader::connectToReader() {
 }
 
 void NFCReader::loop() {
-  Serial.println("Looping");
-  delay(1000);
   uint8_t uid[7]; // Buffer to store the returned UID
   uint8_t uidLength = 0; // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
   boolean success;
@@ -53,10 +55,9 @@ void NFCReader::loop() {
     }
     Serial.println("");
     Serial.println("");
+    // TODO: make this URI dynamic (i.e. read from NFC tag)
     playSpotifyUri("spotify:playlist:15mly4Os7BdTWCnBEGylJW");
     delay(2000);
-    // verify that connection is still live
-    // connectToReader();
   }
 }
 
