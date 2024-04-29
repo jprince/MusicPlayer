@@ -18,7 +18,8 @@ public:
 
 private:
   PN532_I2C pn532i2c;
-  PN532 nfc;
+  PN532 pn532;
+  NfcAdapter nfc = NfcAdapter(pn532i2c);
   bool connected;
 };
 

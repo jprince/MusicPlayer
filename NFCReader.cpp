@@ -2,32 +2,33 @@
 #include "SpotifyClient.h"
 #include "settings.h"
 
-NFCReader::NFCReader() : pn532i2c(Wire), nfc(pn532i2c), connected(false) {}
+NFCReader::NFCReader() : pn532i2c(Wire), pn532(pn532i2c), connected(false) {}
 
 SpotifyClient spotify = SpotifyClient(clientId, clientSecret, deviceName, refreshToken);
 
 void NFCReader::begin() {
   Serial.begin(115200);
-  nfc.begin();
+  pn532.begin();
   while (!connected) {
     delay(1000);
     connectToReader();
   }
+
   // Set the max number of retry attempts to read from a card
   // This prevents us from waiting forever for a card, which is
   // the default behaviour of the PN532.
-  nfc.setPassiveActivationRetries(0xFF);
+  pn532.setPassiveActivationRetries(0xFF);
   connectWifi();
   spotify.FetchToken();
   spotify.GetDevices();
 
-  nfc.SAMConfig();
+  pn532.SAMConfig();
 
   Serial.println("Ready to scan");
 }
 
 void NFCReader::connectToReader() {
-  uint32_t versiondata = nfc.getFirmwareVersion();
+  uint32_t versiondata = pn532.getFirmwareVersion();
   if (!versiondata) {
     Serial.println("PN532 card not found!");
     connected = false;
@@ -38,26 +39,29 @@ void NFCReader::connectToReader() {
 }
 
 void NFCReader::loop() {
-  uint8_t uid[7]; // Buffer to store the returned UID
-  uint8_t uidLength = 0; // Length of the UID (4 or 7 bytes depending on ISO14443A card type)
-  boolean success;
-  // Wait for an ISO14443A type cards (Mifare, etc.).  When one is found
-  // 'uid' will be populated with the UID, and uidLength will indicate
-  // if the uid is 4 bytes (Mifare Classic) or 7 bytes (Mifare Ultralight)
-  success = nfc.readPassiveTargetID(PN532_MIFARE_ISO14443A, &uid[0], &uidLength);
-  if (success) {
-    Serial.println("Card Detected");
-    Serial.print("Size of UID: "); Serial.print(uidLength, DEC);
-    Serial.println(" bytes");
-    Serial.print("UID: ");
-    for (uint8_t i = 0; i < uidLength; i++) {
-      Serial.print(" 0x"); Serial.print(uid[i], HEX);
+  if (nfc.tagPresent()) {
+    NfcTag tag = nfc.read();
+    if (tag.hasNdefMessage()) {
+      NdefMessage message = tag.getNdefMessage();
+      if (message.getRecordCount() > 0) {
+        NdefRecord record = message.getRecord(0); // Get the first record
+
+        int payloadLength = record.getPayloadLength();
+        byte payload[payloadLength];
+        record.getPayload(payload);
+        String payloadAsString = "";
+        for (int c = 0; c < payloadLength; c++) {
+            payloadAsString += (char)payload[c];
+        }
+        payloadAsString.trim(); // Trim whitespace from both ends of the string
+        Serial.println(payloadAsString);
+
+        playSpotifyUri(payloadAsString);
+        delay(2000);
+      } else {
+        Serial.println("No records found on tag.");
+      }
     }
-    Serial.println("");
-    Serial.println("");
-    // TODO: make this URI dynamic (i.e. read from NFC tag)
-    playSpotifyUri("spotify:playlist:15mly4Os7BdTWCnBEGylJW");
-    delay(2000);
   }
 }
 
