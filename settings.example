@@ -1,0 +1,10 @@
+// WiFi settings
+const char* ssid = "Name of Wifi Network";
+const char* pass = "WifiPassword";
+
+// Spotify settings
+String deviceName = "Kitchen Echo";
+String clientId = "Spotify Client ID";
+String clientSecret = "Spotify Client Secret";
+String refreshToken = "Spotify Refresh Token"; // https://www.youtube.com/watch?v=1vR3m0HupGI
+int successRGB[3] = { 255, 7, 7 };
