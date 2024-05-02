@@ -53,7 +53,8 @@ void NFCReader::loop() {
         for (int c = 0; c < payloadLength; c++) {
             payloadAsString += (char)payload[c];
         }
-        playSpotifyUri(payloadAsString.substring(1)); // ignore one leading whitespace character
+        String formattedPayload = payloadAsString.substring(1); // ignore one leading whitespace character
+        playSpotifyUri(formattedPayload);
         delay(2000);
       } else {
         Serial.println("No records found on tag.");
