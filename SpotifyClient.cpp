@@ -66,9 +66,15 @@ int SpotifyClient::Next()
 int SpotifyClient::Play(String context_uri )
 {
     Serial.println("Play()");
-    String body = "{\"context_uri\":\"" + context_uri + "\",\"offset\":{\"position\":0}, \"position_ms\":0}";
     String url = "https://api.spotify.com/v1/me/player/play?device_id=" + deviceId;
+    String body = "{\"context_uri\":\"" + context_uri + "\",\"offset\":{\"position\":0}, \"position_ms\":0}";
 
+    int firstColon = context_uri.indexOf(':');
+    int secondColon = context_uri.indexOf(':', firstColon + 1);
+    String type = context_uri.substring(firstColon + 1, secondColon);
+    if (type == "track") {
+      body = "{\"uris\":[\"" + context_uri + "\"],\"offset\":{\"uri\":\"" + context_uri + "\"}, \"position_ms\":0}";
+    }
     HttpResult result = CallAPI( "PUT", url, body );
     return result.httpCode;
 }
