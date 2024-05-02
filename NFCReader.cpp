@@ -1,10 +1,20 @@
 #include "NFCReader.h"
 #include "SpotifyClient.h"
+#include "pitches.h"
 #include "settings.h"
 
-#define PIN_RED    D11 // The Arduino Nano ESP32 pin connected to R pin
-#define PIN_GREEN  D10 // The Arduino Nano ESP32 pin connected to G pin
-#define PIN_BLUE   D9  // The Arduino Nano ESP32 pin connected to B pin
+#define BUZZZER_PIN D2 // The Arduino Nano ESP32 pin connected to piezo buzzer
+#define PIN_RED     D11 // The Arduino Nano ESP32 pin connected to R pin
+#define PIN_GREEN   D10 // The Arduino Nano ESP32 pin connected to G pin
+#define PIN_BLUE    D9  // The Arduino Nano ESP32 pin connected to B pin
+
+int melody[] = {
+  NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3, 0, NOTE_B3, NOTE_C4
+};
+
+int noteDurations[] = {
+  4, 8, 8, 4, 4, 4, 4, 4
+};
 
 NFCReader::NFCReader() : pn532i2c(Wire), pn532(pn532i2c), connected(false) {}
 
@@ -29,7 +39,9 @@ void NFCReader::begin() {
   pn532.SAMConfig();
 
   Serial.println("Ready to scan");
-  setColor(0, 255, 0, 1000); // green
+  setColor(0, 255, 0); // green
+  delay(1000);
+  clearColor();
 }
 
 void NFCReader::connectToReader() {
@@ -76,24 +88,35 @@ void NFCReader::playSpotifyUri(String context_uri)
     case 404:
     {
       // device id changed, get new one
-      setColor(255, 102, 0, 1000); // orange
+      setColor(255, 102, 0); // orange
       spotify.GetDevices();
+      clearColor();
       spotify.Play(context_uri);
+      setColor(successRGB[0], successRGB[1], successRGB[2]);
+      delay(5000);
+      clearColor();
       spotify.Shuffle();
       break;
     }
     case 401:
     {
       // auth token expired, get new one
-      setColor(255, 102, 0, 1000); // orange
+      setColor(255, 102, 0); // orange
       spotify.FetchToken();
+      clearColor();
       spotify.Play(context_uri);
+      setColor(successRGB[0], successRGB[1], successRGB[2]);
+      delay(5000);
+      clearColor();
       spotify.Shuffle();
       break;
     }
     default:
     {
-      setColor(successRGB[0], successRGB[1], successRGB[2], 5000);
+      setColor(successRGB[0], successRGB[1], successRGB[2]);
+      playTone();
+      delay(3000);
+      clearColor();
       spotify.Shuffle();
       break;
     }
@@ -118,11 +141,24 @@ void NFCReader::connectWifi()
   Serial.println(WiFi.localIP());
 }
 
-void NFCReader::setColor(int R, int G, int B, int duration) {
+void NFCReader::playTone() {
+  for (int thisNote = 0; thisNote < 8; thisNote++) {
+    int noteDuration = 1000 / noteDurations[thisNote];
+    tone(BUZZZER_PIN, melody[thisNote], noteDuration);
+
+    int pauseBetweenNotes = noteDuration * 1.30;
+    delay(pauseBetweenNotes);
+    noTone(BUZZZER_PIN);
+  }
+}
+
+void NFCReader::setColor(int R, int G, int B) {
   analogWrite(PIN_RED,   R);
   analogWrite(PIN_GREEN, G);
   analogWrite(PIN_BLUE,  B);
-  delay(duration);
+}
+
+void NFCReader::clearColor() {
   analogWrite(PIN_RED,   0);
   analogWrite(PIN_GREEN, 0);
   analogWrite(PIN_BLUE,  0);

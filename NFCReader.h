@@ -15,7 +15,9 @@ public:
   void loop();
   void playSpotifyUri(String context_uri);
   void connectWifi();
-  void setColor(int R, int G, int B, int duration);
+  void playTone();
+  void setColor(int R, int G, int B);
+  void clearColor();
 
 private:
   PN532_I2C pn532i2c;
