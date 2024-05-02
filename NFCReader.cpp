@@ -1,20 +1,11 @@
 #include "NFCReader.h"
 #include "SpotifyClient.h"
-#include "pitches.h"
 #include "settings.h"
 
-#define BUZZZER_PIN D2 // The Arduino Nano ESP32 pin connected to piezo buzzer
-#define PIN_RED     D11 // The Arduino Nano ESP32 pin connected to R pin
-#define PIN_GREEN   D10 // The Arduino Nano ESP32 pin connected to G pin
-#define PIN_BLUE    D9  // The Arduino Nano ESP32 pin connected to B pin
-
-int melody[] = {
-  NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3, 0, NOTE_B3, NOTE_C4
-};
-
-int noteDurations[] = {
-  4, 8, 8, 4, 4, 4, 4, 4
-};
+#define BUZZER_PIN D2  // The Arduino Nano ESP32 pin connected to piezo buzzer
+#define PIN_RED    D11 // The Arduino Nano ESP32 pin connected to R pin
+#define PIN_GREEN  D10 // The Arduino Nano ESP32 pin connected to G pin
+#define PIN_BLUE   D9  // The Arduino Nano ESP32 pin connected to B pin
 
 NFCReader::NFCReader() : pn532i2c(Wire), pn532(pn532i2c), connected(false) {}
 
@@ -142,14 +133,8 @@ void NFCReader::connectWifi()
 }
 
 void NFCReader::playTone() {
-  for (int thisNote = 0; thisNote < 8; thisNote++) {
-    int noteDuration = 1000 / noteDurations[thisNote];
-    tone(BUZZZER_PIN, melody[thisNote], noteDuration);
-
-    int pauseBetweenNotes = noteDuration * 1.30;
-    delay(pauseBetweenNotes);
-    noTone(BUZZZER_PIN);
-  }
+  tone(BUZZER_PIN, 2794, 288);
+  noTone(BUZZER_PIN);
 }
 
 void NFCReader::setColor(int R, int G, int B) {
