@@ -2,6 +2,10 @@
 #include "SpotifyClient.h"
 #include "settings.h"
 
+#define PIN_RED    D11 // The Arduino Nano ESP32 pin connected to R pin
+#define PIN_GREEN  D10 // The Arduino Nano ESP32 pin connected to G pin
+#define PIN_BLUE   D9  // The Arduino Nano ESP32 pin connected to B pin
+
 NFCReader::NFCReader() : pn532i2c(Wire), pn532(pn532i2c), connected(false) {}
 
 SpotifyClient spotify = SpotifyClient(clientId, clientSecret, deviceName, refreshToken);
@@ -25,6 +29,7 @@ void NFCReader::begin() {
   pn532.SAMConfig();
 
   Serial.println("Ready to scan");
+  setColor(0, 255, 0, 1000); // green
 }
 
 void NFCReader::connectToReader() {
@@ -71,6 +76,7 @@ void NFCReader::playSpotifyUri(String context_uri)
     case 404:
     {
       // device id changed, get new one
+      setColor(255, 102, 0, 1000); // orange
       spotify.GetDevices();
       spotify.Play(context_uri);
       spotify.Shuffle();
@@ -79,6 +85,7 @@ void NFCReader::playSpotifyUri(String context_uri)
     case 401:
     {
       // auth token expired, get new one
+      setColor(255, 102, 0, 1000); // orange
       spotify.FetchToken();
       spotify.Play(context_uri);
       spotify.Shuffle();
@@ -86,6 +93,7 @@ void NFCReader::playSpotifyUri(String context_uri)
     }
     default:
     {
+      setColor(successRGB[0], successRGB[1], successRGB[2], 5000);
       spotify.Shuffle();
       break;
     }
@@ -108,4 +116,14 @@ void NFCReader::connectWifi()
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
+}
+
+void NFCReader::setColor(int R, int G, int B, int duration) {
+  analogWrite(PIN_RED,   R);
+  analogWrite(PIN_GREEN, G);
+  analogWrite(PIN_BLUE,  B);
+  delay(duration);
+  analogWrite(PIN_RED,   0);
+  analogWrite(PIN_GREEN, 0);
+  analogWrite(PIN_BLUE,  0);
 }
