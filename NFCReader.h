@@ -15,7 +15,6 @@ public:
   void loop();
   void playSpotifyUri(String context_uri);
   void connectWifi();
-  void playTone();
   void setColor(int R, int G, int B);
   void clearColor();
 

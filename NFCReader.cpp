@@ -2,7 +2,6 @@
 #include "SpotifyClient.h"
 #include "settings.h"
 
-#define BUZZER_PIN D2  // The Arduino Nano ESP32 pin connected to piezo buzzer
 #define PIN_RED    D11 // The Arduino Nano ESP32 pin connected to R pin
 #define PIN_GREEN  D10 // The Arduino Nano ESP32 pin connected to G pin
 #define PIN_BLUE   D9  // The Arduino Nano ESP32 pin connected to B pin
@@ -105,7 +104,6 @@ void NFCReader::playSpotifyUri(String context_uri)
     default:
     {
       setColor(successRGB[0], successRGB[1], successRGB[2]);
-      playTone();
       delay(3000);
       clearColor();
       spotify.Shuffle();
@@ -130,11 +128,6 @@ void NFCReader::connectWifi()
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-}
-
-void NFCReader::playTone() {
-  tone(BUZZER_PIN, 2794, 288);
-  noTone(BUZZER_PIN);
 }
 
 void NFCReader::setColor(int R, int G, int B) {
