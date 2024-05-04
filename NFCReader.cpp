@@ -72,43 +72,44 @@ void NFCReader::loop() {
 
 void NFCReader::playSpotifyUri(String context_uri)
 {
-  int code = spotify.Play(context_uri);
-  switch (code)
-  {
-    case 404:
+  int maxTries = 3;
+  int tryCount = 0;
+  bool success = false;
+
+  while (tryCount < maxTries && !success) {
+    int code = spotify.Play(context_uri);
+    switch (code)
     {
-      // device id changed, get new one
-      setColor(255, 102, 0); // orange
-      spotify.GetDevices();
-      clearColor();
-      spotify.Play(context_uri);
-      setColor(successRGB[0], successRGB[1], successRGB[2]);
-      delay(5000);
-      clearColor();
-      spotify.Shuffle();
-      break;
+      case 404: // device id changed, get new one
+        setColor(255, 102, 0); // orange
+        spotify.GetDevices();
+        clearColor();
+        break;
+      case 401: // auth token expired, get new one
+        setColor(255, 102, 0); // orange
+        spotify.FetchToken();
+        clearColor();
+        break;
+      case 204:
+        setColor(successRGB[0], successRGB[1], successRGB[2]);
+        delay(2000);
+        clearColor();
+        spotify.Shuffle();
+        success = true;
+        break;
+      default:
+        setColor(255, 0, 0); // red
+        delay(3000);
+        clearColor();
+        break;
     }
-    case 401:
-    {
-      // auth token expired, get new one
-      setColor(255, 102, 0); // orange
-      spotify.FetchToken();
-      clearColor();
-      spotify.Play(context_uri);
-      setColor(successRGB[0], successRGB[1], successRGB[2]);
-      delay(5000);
-      clearColor();
-      spotify.Shuffle();
-      break;
-    }
-    default:
-    {
-      setColor(successRGB[0], successRGB[1], successRGB[2]);
-      delay(3000);
-      clearColor();
-      spotify.Shuffle();
-      break;
-    }
+    tryCount++;
+  }
+
+  if (!success) { // retries exhausted
+    setColor(255, 0, 0); // red
+    delay(3000);
+    clearColor();
   }
 }
 

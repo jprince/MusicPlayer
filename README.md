@@ -2,8 +2,8 @@
 
 Spotify supports the following urls:
 - spotify:album:25L8ck3KGcmCo3901ztPzR
-- spotify:playlist:37i9dQZF1EQmPV0vrce2QZ
-- spotify:artist:2RQXRUsr4IW1f3mKyKsy4B
+- spotify:playlist:15mly4Os7BdTWCnBEGylJW
+- spotify:artist:7oWSqrgMuIEyH9qp5nu2e5
 - spotify:track:7lMIJ4EFWRVoAIPDpeGyM3
 
 The IOS NFC Tools app is used for writing data to cards:
