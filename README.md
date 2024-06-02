@@ -15,5 +15,8 @@ The IOS NFC Tools app is used for writing data to cards:
 6. Click "Write / XX Bytes"
 7. Scan your card
 
+# Troubleshooting
+404 when calling play() - This is often caused by Spotify's inability to find the selected device. To resolve it, open the Alexa app and initiate a Spotify song on the device. This somehow resolves the communication issue between the Echo and Spotify.
+
 # Credit
 h/t to [Michael Hawkins](https://github.com/makeratplay) for excellent tutorials and providing the bulk of the Spotify API code.
