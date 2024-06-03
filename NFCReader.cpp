@@ -72,7 +72,7 @@ void NFCReader::loop() {
 
 void NFCReader::playSpotifyUri(String context_uri)
 {
-  int maxTries = 3;
+  int maxTries = 1;
   int tryCount = 0;
   bool success = false;
 
