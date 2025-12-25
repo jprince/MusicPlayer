@@ -1,3 +1,10 @@
+# Updating the Nano
+1. In a Finder window, navigate to Documents/Arduino/libraries/NFCReader
+2. In another Finder window, navigate to this project's root directory
+3. Copy the files from this project
+4. Paste the files into the first Finder window
+5. From Arduino IDE, compile the sketch and upload the files to the Nano
+
 # Writing to cards
 
 Spotify supports the following urls:
